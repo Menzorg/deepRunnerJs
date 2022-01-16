@@ -1,6 +1,7 @@
 import express from 'express';
 
 const app = express();
+const TIMEOUTSEC = +process.env.TIMEOUTSEC || 15;
 let initiated;
 
 app.use(express.json());
@@ -13,7 +14,12 @@ app.post('/init', (req, res)=>{
   console.log('initiated', initiated);
   res.json('ok');
 });
+
+let timer = setTimeout(process.exit, TIMEOUTSEC * 1000);
+
 app.post('/call', (req, res)=>{
+  clearTimeout(timer);
+  timer = setTimeout(process.exit, TIMEOUTSEC * 1000);
   // typeof initiated === 'function' ? res.json(initiated(req.body)) : res.json({error: 'init error'});
   if (typeof initiated !== 'function') res.json({error: 'init error'});
   const result = initiated(req.body);
